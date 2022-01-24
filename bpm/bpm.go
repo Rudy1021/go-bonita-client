@@ -1,9 +1,9 @@
 package bpm
 
 import (
-	"fmt"
-	"github.com/go-resty/resty/v2"
 	"log"
+
+	"github.com/go-resty/resty/v2"
 )
 
 var bc *BPMClient
@@ -17,7 +17,7 @@ type BPMClient struct {
 }
 
 func init() {
-	const server_addr = "http://1.2.3.4:8080" + "/bonita/"
+	const server_addr = "http://54.169.182.165:8080" + "/bonita/"
 	// sources := fmt.Sprintf(server_addr,
 	// 	// os.Getenv("BPM_SERVER_ADDR"),
 	// 	os.Getenv("b.server"),
@@ -33,11 +33,10 @@ func init() {
 
 // Login
 // /bonita/loginservice
-func (b *BPMClient) Login(username string) {
+func Login(username string) {
 
-	url := b.server + "loginservice"
-
-	resp, err := b.client.R().
+	url := bc.server + "loginservice"
+	resp, err := bc.client.R().
 		SetFormData(map[string]string{
 			"username": username,
 			"password": "12345",
@@ -46,26 +45,31 @@ func (b *BPMClient) Login(username string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println(resp.Header())
-
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == "X-Bonita-API-Token" {
+			bc.token = cookie.Value
+		}
+	}
 }
 
 // Start-Form
 // /bonita/API/bpm/process/[ProcessId]/instantiation
 // [ProcessId] == 表單編號
 // return caseId
-func (b *BPMClient) StartForm(processID string, body string) []byte {
+func StartForm(processID string, body string) string {
 
-	url := b.server + "API/bpm/process/" + processID + "/instantiation"
+	url := bc.server + "API/bpm/process/" + processID + "/instantiation"
 
-	resp, err := b.client.R().
-		SetHeader("Content-Type", "application/json").
+	resp, err := bc.client.R().
+		SetHeaders(map[string]string{
+			"Content-Type":       "application/json",
+			"X-Bonita-API-Token": bc.token,
+		}).
 		SetBody(body).
 		Post(url)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return resp.Body()
+	return string(resp.Body())
 }
