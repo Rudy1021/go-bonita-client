@@ -9,20 +9,14 @@ import (
 func main() {
 	client := bpm.Bc
 	client.Login("isabelle_wu")
-	body := client.StartForm("8759976868088592450", `{
-		"modelInput":
-		{
-				"assistant":"choc",
-				"recipient":"kevin_lin"
-		}
-}`)
+	body := client.StartB2Form("choc", "kevin_lin")
 	fmt.Println(body)
 
-	res := client.GetReadyCase("50", "ready", "38")
-	fmt.Println(res)
+	// res := client.GetReadyCase("50", "ready", "38")
+	// fmt.Println(res)
 
-	res = client.GetDetailCase("3075")
-	fmt.Println(res)
+	// res = client.GetDetailCase("3075")
+	// fmt.Println(res)
 
 	//res = client.GetFinishCase("3075")
 	//fmt.Println(res)
@@ -44,6 +38,6 @@ func main() {
 	}`)
 	fmt.Println(res)
 	*/
-	res = client.GetAllProcessCase("20", "8759976868088592450")
-	fmt.Println(res)
+	// res = client.GetAllProcessCase("20", "8759976868088592450")
+	// fmt.Println(res)
 }

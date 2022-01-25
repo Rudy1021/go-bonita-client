@@ -1,6 +1,8 @@
 package bpm
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/go-resty/resty/v2"
@@ -14,6 +16,17 @@ type BPMClient struct {
 	username string
 	password string
 	client   *resty.Client
+}
+
+//外層
+type B2Form struct {
+	ModelInput *B2ModelInput `json:"modelInput"`
+}
+
+//內層
+type B2ModelInput struct {
+	Pm string   `json:"pm"`
+	Tm []string `json:"tm"`
 }
 
 func init() {
@@ -47,7 +60,7 @@ func (b *BPMClient) Login(username string) {
 	}
 	for _, cookie := range resp.Cookies() {
 		if cookie.Name == "X-Bonita-API-Token" {
-			b.token = cookie.Value
+			b.token = cookie.Value //獲取token
 		}
 	}
 }
@@ -74,6 +87,44 @@ func (b *BPMClient) StartForm(processID string, body string) string {
 	return string(resp.Body())
 }
 
+// Start-C-Form
+// /bonita/API/bpm/process/[ProcessId]/instantiation
+// [ProcessId] == 表單編號
+// return caseId
+func (b *BPMClient) StartB2Form(pm string, tm string) string {
+
+	url := b.server + "API/bpm/process/8869302191965724972/instantiation"
+
+	body2 := &B2ModelInput{
+		Pm: pm,
+		Tm: []string{tm},
+	}
+
+	// p, err := json.Marshal(body2)
+	// fmt.Print(string(p))
+
+	body := &B2Form{
+		body2,
+	}
+
+	r, err := json.Marshal(body)
+	fmt.Print(string(r))
+
+	resp, err := b.client.R().
+		SetHeaders(map[string]string{
+			"Content-Type":       "application/json",
+			"X-Bonita-API-Token": b.token,
+		}).
+		SetBody(string(r)).
+		Post(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(resp.Body())
+}
+
+//獲取使用者可執行的單
 func (b *BPMClient) GetReadyCase(c string, state string, user_id string) string {
 
 	url := b.server + "API/bpm/humanTask?c=" + c + "&f=state=" + state + "&f=user_id=" + user_id
@@ -86,6 +137,7 @@ func (b *BPMClient) GetReadyCase(c string, state string, user_id string) string 
 	return string(resp.Body())
 }
 
+//取得該單據待執行詳細資料
 func (b *BPMClient) GetDetailCase(case_id string) string {
 
 	url := b.server + "API/bpm/humanTask?f=caseId=" + case_id
@@ -98,6 +150,7 @@ func (b *BPMClient) GetDetailCase(case_id string) string {
 	return string(resp.Body())
 }
 
+//取得該單據已完成任務之資料
 func (b *BPMClient) GetFinishCase(case_id string) string {
 	//
 	url := b.server + "API/bpm/archivedTask?f=caseId=" + case_id
@@ -110,6 +163,7 @@ func (b *BPMClient) GetFinishCase(case_id string) string {
 	return string(resp.Body())
 }
 
+//取得已完成任務之狀態描述
 func (b *BPMClient) GetFinishCaseState(sourceObjectId string) string {
 	//
 	url := b.server + "API/bpm/archivedHumanTask?f=sourceObjectId=" + sourceObjectId
@@ -122,6 +176,7 @@ func (b *BPMClient) GetFinishCaseState(sourceObjectId string) string {
 	return string(resp.Body())
 }
 
+//取得該流程所有單況
 func (b *BPMClient) GetAllProcessCase(c string, processId string) string {
 	//
 	url := b.server + "API/bpm/case?c=" + c + "&f=processDefinitionId=" + processId
@@ -134,6 +189,7 @@ func (b *BPMClient) GetAllProcessCase(c string, processId string) string {
 	return string(resp.Body())
 }
 
+//審核任務
 func (b *BPMClient) ReviewCase(task_id string, body string) string {
 	//
 	url := b.server + "API/bpm/userTask/" + task_id + "/execution?assign=true"
