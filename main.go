@@ -9,7 +9,7 @@ import (
 func main() {
 	client := bpm.Bc
 	client.Login("isabelle_wu")
-	tm := []int{44, 43}
+	tm := []int{44}
 	body := client.StartB2Form(44, tm)
 	fmt.Println(body)
 

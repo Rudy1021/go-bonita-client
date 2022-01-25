@@ -2,7 +2,6 @@ package bpm
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/go-resty/resty/v2"
@@ -130,7 +129,7 @@ func (b *BPMClient) StartOrderForm(assistant string, recipient string) string {
 // return caseId
 func (b *BPMClient) StartB2Form(pm int, tm []int) string {
 
-	url := b.server + "API/bpm/process/8869302191965724972/instantiation"
+	url := b.server + "API/bpm/process/7999808492643941641/instantiation"
 
 	body2 := &B2ModelInput{
 		Pm: pm,
@@ -142,7 +141,7 @@ func (b *BPMClient) StartB2Form(pm int, tm []int) string {
 	}
 
 	r, err := json.Marshal(body)
-	fmt.Print(string(r))
+	//fmt.Print(string(r))
 	resp, err := b.client.R().
 		SetHeaders(map[string]string{
 			"Content-Type":       "application/json",
