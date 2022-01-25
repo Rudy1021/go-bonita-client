@@ -29,11 +29,20 @@ type B2ModelInput struct {
 	Tm []int `json:"tm"`
 }
 
+type OrderForm struct {
+	ModelInput *OrderModelInput `json:"modelInput"`
+}
+
+type OrderModelInput struct {
+	Assistant string `json:"assistant,omitempty"`
+	Recipient string `json:"recipient,omitempty"`
+}
+
 func init() {
 	const server_addr = "http://54.169.182.165:8080" + "/bonita/"
 	// sources := fmt.Sprintf(server_addr,
-	// 	// os.Getenv("BPM_SERVER_ADDR"),
-	// 	os.Getenv("b.server"),
+	//  // os.Getenv("BPM_SERVER_ADDR"),
+	//  os.Getenv("b.server"),
 	// )
 	Bc = &BPMClient{
 		server:   server_addr,
@@ -87,6 +96,34 @@ func (b *BPMClient) StartForm(processID string, body string) string {
 	return string(resp.Body())
 }
 
+// Start-Order-Form
+// /bonita/API/bpm/process/[ProcessId]/instantiation
+// [ProcessId] == 表單編號
+// return caseId
+func (b *BPMClient) StartOrderForm(assistant string, recipient string) string {
+
+	url := b.server + "API/bpm/process/" + "8759976868088592450" + "/instantiation"
+
+	modelInput := &OrderModelInput{assistant, recipient}
+
+	body := &OrderForm{modelInput}
+
+	marshal, _ := json.MarshalIndent(body, "", "\t")
+
+	resp, err := b.client.R().
+		SetHeaders(map[string]string{
+			"Content-Type":       "application/json",
+			"X-Bonita-API-Token": b.token,
+		}).
+		SetBody(marshal).
+		Post(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(resp.Body())
+}
+
 // Start-C-Form
 // /bonita/API/bpm/process/[ProcessId]/instantiation
 // [ProcessId] == 表單編號
@@ -100,16 +137,12 @@ func (b *BPMClient) StartB2Form(pm int, tm []int) string {
 		Tm: tm,
 	}
 
-	// p, err := json.Marshal(body2)
-	// fmt.Print(string(p))
-
 	body := &B2Form{
 		body2,
 	}
 
 	r, err := json.Marshal(body)
 	fmt.Print(string(r))
-
 	resp, err := b.client.R().
 		SetHeaders(map[string]string{
 			"Content-Type":       "application/json",
