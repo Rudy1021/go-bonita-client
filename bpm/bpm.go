@@ -25,8 +25,8 @@ type B2Form struct {
 
 //內層
 type B2ModelInput struct {
-	Pm string   `json:"pm"`
-	Tm []string `json:"tm"`
+	Pm int   `json:"pm"`
+	Tm []int `json:"tm"`
 }
 
 func init() {
@@ -91,13 +91,13 @@ func (b *BPMClient) StartForm(processID string, body string) string {
 // /bonita/API/bpm/process/[ProcessId]/instantiation
 // [ProcessId] == 表單編號
 // return caseId
-func (b *BPMClient) StartB2Form(pm string, tm string) string {
+func (b *BPMClient) StartB2Form(pm int, tm []int) string {
 
 	url := b.server + "API/bpm/process/8869302191965724972/instantiation"
 
 	body2 := &B2ModelInput{
 		Pm: pm,
-		Tm: []string{tm},
+		Tm: tm,
 	}
 
 	// p, err := json.Marshal(body2)

@@ -1,4 +1,4 @@
-module github.com/kuochaoyi/go-bonita-client
+module github.com/Rudy1021/go-bonita-client
 
 go 1.17
 

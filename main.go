@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 
-	bpm "github.com/kuochaoyi/go-bonita-client/bpm"
+	bpm "github.com/Rudy1021/go-bonita-client/bpm"
 )
 
 func main() {
 	client := bpm.Bc
 	client.Login("isabelle_wu")
-	body := client.StartB2Form("choc", "kevin_lin")
+	tm := []int{44, 43}
+	body := client.StartB2Form(44, tm)
 	fmt.Println(body)
 
 	// res := client.GetReadyCase("50", "ready", "38")
